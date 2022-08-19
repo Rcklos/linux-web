@@ -85,3 +85,116 @@ gid_t getegid();
 
 切换用户栗子(switch_user.cpp)
 ![切换用户](http://cdn.lentme.cn/20220819165625.png)
+
+## 3. 进程间关系
+
+### 3.1 进程组
+
+```c++
+#include <unistd.h>
+
+pid_t getpgid(pid_t pid);
+```
+
+> 查看进程组，返回进程组PGID，失败返回-1并设置errno
+
+设置PGID: 
+
+```c++
+#include <unistd.h>
+
+int setpgid(pid_t pid, pid_t pgid);
+```
+
+> 成功返回0，失败返回-1并设置errno
+
+### 3.2 会话
+
+会话(session)由一些相关联的进程组形成。
+
+创建会话: 
+
+```c++
+#include <unistd.h>
+
+pid_t setsid(void);
+```
+
+- 调用进程是会话的首领，此时会话刚创建。
+- 新建一个进程组，PGID就是调用进程的PID，调用进程成为该首领。
+- 调用进程将甩开终端。
+
+### 3.3 ps命令查看进程关系
+
+![ps命令和bat命令](http://cdn.lentme.cn/20220819170643.png)
+
+图示(需要把less改成bat)：
+
+![进程关系图示](http://cdn.lentme.cn/20220819171003.png)
+
+## 4. 系统资源限制
+
+资源限制读取
+
+```c++
+#include <sys/resource.h>
+
+int getrlimit(int resource, struct rlimit *rlim);
+int setrlimit(int resource, const struct rlimit *rlim);
+```
+
+rlim: 
+
+```c++
+struct rlimit {
+  // rlim_t 是整数类型
+  rlim_t rlim_cur; // 资源软限制
+  rlim_t rlim_max; // 资源硬限制
+}
+```
+
+![资源类型](http://cdn.lentme.cn/20220819171505.png)
+
+## 5. 改变工作目录和根目录
+
+```c++
+#include <unistd.h>
+
+char *getcwd(char *buf, size_t size);
+char chdir(const char *path);
+int chroot(const char *path);
+```
+
+> 只有特权进程才能修改根目录
+
+## 6. 服务器程序后台化
+
+linux提供: 
+
+```c++
+#include <unistd.h>
+
+int daemon(int nochdir, int noclose);
+```
+
+自己实现(daemon.cpp):
+
+```c++
+bool daemonize() {
+  pid_t pid = fork();       // 创建子进程
+  if(pid < 0) return false;
+  else if(pid > 0)  {
+    std::cout << "正在退出父进程" << std::endl;
+    sleep(10);
+    exit(0); // 退出父进程
+  }
+  umask(0);
+  pid_t sid = setsid();
+  if(sid < 0) return false;
+  if(chdir("/") < 0) return false;
+  std::cout << "创建daemon进程成功" << std::endl;
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  return true;
+}
+```

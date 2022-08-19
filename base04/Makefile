@@ -5,3 +5,6 @@ uid:
 
 switch:
 	${CC} -o ${BIN}/$@ switch_user.cpp
+
+daemon:
+	${CC} -o ${BIN}/$@ daemon.cpp
