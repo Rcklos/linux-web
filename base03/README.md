@@ -123,4 +123,29 @@ ssize_t tee(int fd_in, int fd_out, size_t len, unsigned int flags);
 
 利用tee和splice改进echo，实现同时回显和终端输出: 
 
+### 8. fcntl函数
 
+file control，提供了对文件描述符的各种操作。
+
+> ioctl比fcntl能够执行更多控制，但fcntl是POSIX首选
+
+```c++
+#include <fcntl.h>
+
+int fcntl(int fd, int cmd, ...);
+```
+
+![fcntl参数](http://cdn.lentme.cn/20220819142133.png)
+
+> 失败返回-1并设置errno
+
+例子：设置文件描述符为非阻塞
+
+```c++
+int set_nonblock(int fd) {
+  int old_option = fcntl(fd, F_GETFL); // 获取文件描述符的flag
+  int new_option = old_option | O_NONBLOCK; // 新增非阻塞flag
+  fcntl(fd, F_SETFL, new_option); // 设置flag
+  return old_option; // 返回设置前的flag
+}
+```
