@@ -1,3 +1,8 @@
 webCpp
 */bin
 */.project
+*/.root
+*/.cache
+*/build
+*/obj
+*/compile_commands.json
