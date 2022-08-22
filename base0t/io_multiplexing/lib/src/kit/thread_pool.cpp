@@ -1,6 +1,6 @@
-#include "thread_pool.h"
+#include "kit/thread_pool.h"
 #include <assert.h>
-#include "log/log.h"
+#include "log.h"
 #include <functional>
 
 using namespace G;
@@ -102,15 +102,3 @@ public:
 private:
   const char* name;
 };
-
-int main() {
-  ThreadPool thread_pool(5);
-  TestClass test[5] = {"t1", "t2", "t3", "t4", "t5"};
-  for(int i = 0; i < 5; i++) {
-    thread_pool.addLast(std::bind(&TestClass::run, &test[i]));
-  }
-  while(thread_pool.size());
-  thread_pool.terminal();
-  LOGI(bye);
-  return 0;
-}
