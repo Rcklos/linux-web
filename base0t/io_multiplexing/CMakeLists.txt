@@ -5,8 +5,9 @@ SET(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 SET(MY_LIB_DIR lib)
+SET(TEST_SOURCE_BASE_DIR test)
 
-project(simple_select)
+project(io_multiplex)
 
 include_directories(inc ${MY_LIB_DIR}/inc)
 
@@ -14,7 +15,10 @@ aux_source_directory(${MY_LIB_DIR}/src CXX_LIB_SRC)
 aux_source_directory(${MY_LIB_DIR}/src/kit CXX_KIT_SRC)
 aux_source_directory(src CXX_SRC)
 
-add_executable(main 
+aux_source_directory(${TEST_SOURCE_BASE_DIR}/simple_select CXX_SIMPLE_SELECT_SRC)
+
+add_executable(simple_select 
   ${CXX_LIB_SRC} 
   ${CXX_KIT_SRC} 
-  ${CXX_SRC})
+  ${CXX_SRC}
+  ${CXX_SIMPLE_SELECT_SRC})
