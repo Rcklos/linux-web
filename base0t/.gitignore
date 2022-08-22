@@ -1,2 +1,8 @@
-*/.cache
-*/compile_commands.json
+*.cache
+*compile_commands.json
+*.root
+**cache
+**compile_commands.json
+**.root
+*build/
+**build/
