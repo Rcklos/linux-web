@@ -1,6 +1,9 @@
 #include "kit/sock.h"
 #include "log.h"
+#include <cassert>
 #include <cstdlib>
+#include <cstring>
+#include <sys/socket.h>
 
 #define BUFFER_SIZE 1024
 
@@ -17,6 +20,16 @@ int main(int argc, char **argv) {
   int ret = fish::connect(sockfd, addr);
   assert(ret != -1);
 
-  char buffer[BUFFER_SIZE];
-  // 还有buffer没写
+  std::string str;
+  // char buffer[BUFFER_SIZE];
+  // bzero(buffer, BUFFER_SIZE);
+  // 后面还没写
+  while(1) {
+    std::cin >> str;
+    LOGD("发送消息: %s", str.c_str());
+    send(sockfd, str.c_str(), str.length(), 0);
+
+    if(std::strstr(str.c_str(), "stop__")) break;
+  }
+  LOGD("bye");
 }

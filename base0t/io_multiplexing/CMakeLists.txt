@@ -20,6 +20,7 @@ aux_source_directory(src CXX_SRC)
 
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/simple_select CXX_SIMPLE_SELECT_SRC)
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/thread_select CXX_THREAD_SELECT_SRC)
+aux_source_directory(${TEST_SOURCE_BASE_DIR}/thread_select CXX_SIMPLE_CLIENT_SRC)
 
 add_executable(simple_select 
   ${CXX_LIB_SRC} 
@@ -31,3 +32,8 @@ add_executable(thread_select
   ${CXX_KIT_SRC}
   ${CXX_SRC}
   ${CXX_THREAD_SELECT_SRC})
+
+add_executable(simple_client
+  ${CXX_LIB_SRC} 
+  ${CXX_KIT_SRC} 
+  ${CXX_SIMPLE_CLIENT_SRC})
