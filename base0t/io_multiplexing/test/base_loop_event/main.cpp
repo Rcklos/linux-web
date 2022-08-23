@@ -6,38 +6,6 @@
 #include "kit/thread_pool.h"
 #include "log.h"
 
-// class SubThread: public fish::BaseLoopEventGroup {
-// private:
-//   fish::Task handle_;
-// private:
-//   void loop_() {
-//     LOGD("任务已分配给了子线程");
-//     while(running_);
-//   }
-//
-// public:
-//   void loop_task_() {
-//     while(running_)
-//       handle_();
-//     LOGD("running_: %d", running_);
-//   }
-//
-//   SubThread(fish::Task handle, bool enable_thread_pool = false, int size = 5)
-//     :BaseLoopEventGroup(enable_thread_pool, size),
-//     handle_(handle) {}
-// };
-//
-// class TestHanlde {
-// private:
-//   std::string name_;
-// public:
-//   TestHanlde(std::string name): name_(name){}
-//   void handle() {
-//     LOGD("thread[%d] handle %s", getpid(), name_.c_str());
-//     sleep(1);
-//   }
-// };
-
 class TestTask: public fish::BaseLoopEventGroup {
 private:
   char *name;
