@@ -1,6 +1,9 @@
 #ifndef __UTIL_SOCK_H__
 #define __UTIL_SOCK_H__
 
+#include <string.h>
+#include <arpa/inet.h>
+
 #define DEFAULT_SOCK_PORT 9000
 
 namespace fish{
@@ -10,10 +13,31 @@ typedef int socket_t;
 /**
  * @addr 目前是sockaddr_in
  */
-typedef struct {
+typedef struct socket_addr_t {
   const char *ip;
   int port;
   void *sockaddr;
+
+  socket_addr_t(char *ip, int port):
+    ip(ip),
+    port(port) {
+      if(!ip && port < 0) {
+        this->sockaddr = nullptr;
+        return;
+      }
+      struct sockaddr_in *sockaddr = new struct sockaddr_in();
+      memset(sockaddr, 0, sizeof(struct sockaddr_in));
+      sockaddr->sin_family = AF_INET;
+      sockaddr->sin_port = htons(port);
+      sockaddr->sin_addr.s_addr = ip? inet_addr(ip): INADDR_ANY;
+
+      this->sockaddr = sockaddr;
+    }
+
+  ~socket_addr_t() {
+    if(sockaddr)
+      delete (struct sockaddr_in*)sockaddr;
+  }
 } socket_addr_t;
 
 typedef enum {
@@ -38,9 +62,9 @@ int create_socket_tcp_default(int port, socket_type_t type);
  */
 socket_t create_socket_tcp_default(socket_type_t type, int port = -1);
 
-socket_addr_t* create_socket_addr(char *ip, int port);
-void free_socket_addr(socket_addr_t *addr);
+inline int connect(socket_t sockfd, socket_addr_t *addr) {
+  return connect(sockfd, (struct sockaddr*)addr->sockaddr, sizeof(struct sockaddr_in));
+}
 
-int connect(socket_t socket, socket_addr_t* addr);
 }
 #endif /** __UTIL_SOCK_H__ **/
