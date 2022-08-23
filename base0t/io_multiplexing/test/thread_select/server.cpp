@@ -93,20 +93,21 @@ class SubThread {
           LOGD("检查socket[%d]是否有事", *client_fds_it);
           if(FD_ISSET(*client_fds_it, &client_set_)) {
             LOGD("socket[%d]有事，正在处理...", *client_fds_it);
-            FD_CLR(*client_fds_it, &client_set_);
             ret = recv(*client_fds_it, buff__, 1024, 0);
-            if(ret == -1) {
-              LOGD("scoket[%d]他说没事了，我让他滚了。", *client_fds_it);
+            if(ret <= 0) {
+              LOGD("scoket[%d]他说没事了，我让他滚 ----> ret = %d, %s", *client_fds_it, 
+                ret, strerror(errno));
               close(*client_fds_it);
               client_fds_it = sockfds.erase(client_fds_it);
               continue;
             }
-            LOGD("socket[%d]发来消息: %s", *client_fds_it, buff__);
+            LOGD("socket[%d]发来消息(ret: %d): %s", ret, *client_fds_it, buff__);
             if(strstr(buff__, "stop__")) {
               LOGD("程序正在退出");
               running_ = false;
             }
             bzero(buff__, sizeof(buff__));
+            FD_CLR(*client_fds_it, &client_set_);
           }
           client_fds_it++;
         }
@@ -141,7 +142,7 @@ int main(int argc, char **argv) {
   // 构造线程池
   int max_thread_max = 1;
   int cur = 0;
-  G::ThreadPool thread_pool(max_thread_max);
+  fish::ThreadPool thread_pool(max_thread_max);
   SubThread *subThread[max_thread_max];
   for(int i = 0; i < max_thread_max; i++) {
     subThread[i] = new SubThread(running_, i);

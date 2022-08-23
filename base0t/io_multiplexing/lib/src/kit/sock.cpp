@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+using namespace fish;
 
 int fish::create_socket_tcp_default(int port, socket_type_t type) {
   // 这里应该是client，暂不实现
@@ -54,24 +55,3 @@ fish::socket_t fish::create_socket_tcp_default(socket_type_t type, int port) {
   return sock;
 }
 
-// fish::socket_addr_t* fish::create_socket_addr(char *ip, int port) {
-//   if(!ip && port < 0) return NULL;
-//   fish::socket_addr_t *addr = new fish::socket_addr_t();
-//   addr->ip = ip;
-//   addr->port = port;
-//   struct sockaddr_in *sockaddr = new struct sockaddr_in();
-//   memset(sockaddr, 0, sizeof(struct sockaddr_in));
-//   sockaddr->sin_family = AF_INET;
-//   sockaddr->sin_port = port;
-//   sockaddr->sin_addr.s_addr = ip? inet_addr(ip): INADDR_ANY;
-//
-//   addr->sockaddr = sockaddr;
-//   return addr;
-// }
-
-
-// void fish::free_socket_addr(socket_addr_t *addr) {
-//   if(addr->sockaddr)
-//     delete (struct sockaddr_in*)addr->sockaddr;
-//   delete addr;
-// }

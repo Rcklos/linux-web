@@ -1,6 +1,7 @@
 #include "log.h"
 #include "kit/sock.h"
 #include <assert.h>
+#include <cerrno>
 #include <netinet/in.h>
 #include <vector>
 #include <sys/select.h>
@@ -67,16 +68,17 @@ int main(int argc, char **argv) {
         continue;
       }
       if(FD_ISSET(*client_fds_it, &client_set)) {
-        LOGD("socket[%d]有事，正在处理...", *client_fds_it);
+        LOGD("socket[%d]说他有事，正在处理...", *client_fds_it);
         ret = recv(*client_fds_it, buff__, 1024, 0);
-        if(ret == -1) {
-          LOGD("scoket[%d]他说没事了，我让他滚了。", *client_fds_it);
+        if(ret <= 0) {
+          LOGD("scoket[%d]他说没事了，我让他滚 ----> ret = %d, %s", *client_fds_it, 
+              ret, strerror(errno));
           close(*client_fds_it);
           FD_CLR(*client_fds_it, &client_set);
           client_fds_it = client_fds.erase(client_fds_it);
           continue;
         }
-        LOGD("socket[%d]发来消息: %s", *client_fds_it, buff__);
+        LOGD("socket[%d]发来消息(ret: %d): %s", ret, *client_fds_it, buff__);
         if(strstr(buff__, "stop__")) {
           LOGD("程序正在退出");
           running_ = false;

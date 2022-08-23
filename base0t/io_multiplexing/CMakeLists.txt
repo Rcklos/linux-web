@@ -16,11 +16,13 @@ include_directories(inc ${MY_LIB_DIR}/inc)
 
 aux_source_directory(${MY_LIB_DIR}/src CXX_LIB_SRC)
 aux_source_directory(${MY_LIB_DIR}/src/kit CXX_KIT_SRC)
+aux_source_directory(${MY_LIB_DIR}/src/kit/event CXX_EVENT_SRC)
 aux_source_directory(src CXX_SRC)
 
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/simple_select CXX_SIMPLE_SELECT_SRC)
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/thread_select CXX_THREAD_SELECT_SRC)
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/simple_client CXX_SIMPLE_CLIENT_SRC)
+aux_source_directory(${TEST_SOURCE_BASE_DIR}/base_server CXX_BASE_SERVER_SRC)
 
 add_executable(simple_select 
   ${CXX_LIB_SRC} 
@@ -37,3 +39,9 @@ add_executable(simple_client
   ${CXX_LIB_SRC} 
   ${CXX_KIT_SRC} 
   ${CXX_SIMPLE_CLIENT_SRC})
+
+add_executable(base_server
+  ${CXX_LIB_SRC}
+  ${CXX_KIT_SRC}
+  ${CXX_EVENT_SRC}
+  ${CXX_BASE_SERVER_SRC})
