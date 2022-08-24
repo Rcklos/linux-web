@@ -39,6 +39,7 @@ ThreadPool::th_func_t ThreadPool::recv_task() {
   func = this->mq.front();
   this->mq.pop();
   LOGD("取出任务执行 size: %ld", this->mq.size());
+  size_--;
   pthread_mutex_unlock(&this->mutex_);
   return func;
 }
@@ -82,16 +83,14 @@ void* ThreadPool::th_create(void *args) {
 }
 
 ThreadPool::th_size_t ThreadPool::size() {
-  pthread_mutex_lock(&this->mutex_);
-  int size = this->mq.size();
-  pthread_mutex_unlock(&this->mutex_);
-  return size;
+  return size_;
 }
 
 void ThreadPool::addLast(const th_func_t& func) {
   pthread_mutex_lock(&this->mutex_);
   this->mq.push(func);
   LOGD("ThreadPool: 有线程任务进入队列 size = %ld", this->mq.size());
+  size_++;
   pthread_mutex_unlock(&this->mutex_);
   pthread_cond_signal(&this->cond_);
 }

@@ -35,6 +35,7 @@ private:
   pthread_mutex_t mutex_;
   pthread_cond_t cond_;
   std::queue<th_func_t> mq;
+  int size_;
   static void* th_create(void *args);
 
   th_func_t recv_task();

@@ -29,7 +29,8 @@ public:
   socket_t sock();
 
 private:
-  void sync_accept();
+  // select服务器实现
+  void select_accept();
 };
 
 }
