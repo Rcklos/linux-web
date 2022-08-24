@@ -1,7 +1,9 @@
 #include "kit/event/selector.h"
+#include "kit/event/event_listener.h"
 #include "kit/sock.h"
 #include "kit/thread_pool.h"
 #include "log.h"
+// #include <fcntl.h>
 #include <cerrno>
 #include <cstddef>
 #include <assert.h>
@@ -73,7 +75,7 @@ void Selector::dispatch(socket_t client) {
 SelectTask::SelectTask(bool &running): running_(running) {}
 SelectTask::~SelectTask(){}
 
-void SelectTask::run() {
+void SelectTask::run(EventListener &listener) {
   pthread_t tid = pthread_self();
   fd_set sock_set;
   struct timeval tv;
@@ -81,7 +83,7 @@ void SelectTask::run() {
   socket_t sock;
   std::queue<socket_t> q;
   LOGD("正在启动select线程thread[%ld]", tid);
-  bzero(buff_, 1024);
+  // bzero(buff_, 1024);
   while(running_) {
     FD_ZERO(&sock_set);
     // 先读取mq长度
@@ -116,6 +118,9 @@ void SelectTask::run() {
       sock = q.front();
       q.pop();
       if(FD_ISSET(sock, &sock_set)) {
+        event_t *event = new event_t();
+        event->buff = new char[1024];
+        char *buff_ = event->buff;
         LOGD("socket[%d]有事，正在处理...", sock);
         ret = recv(sock, buff_, 1024, 0);
         if(ret <= 0) {
@@ -124,7 +129,10 @@ void SelectTask::run() {
           continue;
         }
         LOGD("socket[%d]发来消息(ret: %d): %s", ret, sock, buff_);
-        bzero(buff_, 1024);
+        event->buff_size = ret;
+        event->type = EVENT_TYPE_RECV_SOCK;
+        listener.emit(event);
+        // bzero(buff_, 1024);
         FD_CLR(sock, &sock_set);
       }
       // 入队下次用
@@ -187,10 +195,10 @@ bool Selector::is_terminal() {
   return running_ == false;
 }
 
-void Selector::bootstrap(const Task &task) {
+void Selector::bootstrap(EventListener *listener) {
   for(int i = 0; i < pool_size_; i++) {
     // select_task_buff_[i].running_ = &running_;
     // register_task(std::bind(select_task, select_task_buff_ + i));
-    register_task(std::bind(&SelectTask::run, select_tasks[i]));
+    register_task(std::bind(&SelectTask::run, select_tasks[i], *listener));
   }
 }

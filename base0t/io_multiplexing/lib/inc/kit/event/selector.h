@@ -1,5 +1,6 @@
 #ifndef __EVENT_SELECTOR_H__
 #define __EVENT_SELECTOR_H__
+#include "kit/event/event_listener.h"
 #include "kit/thread_pool.h"
 #include "kit/event/base_task_group.h"
 #include "kit/sock.h"
@@ -25,14 +26,14 @@ typedef struct select_task_buff_t {
 
 class SelectTask {
 private:
-  char buff_[1024];
+  // char buff_[1024];
 public:
   bool &running_;
   std::queue<socket_t> mq_;
   pthread_mutex_t mq_mutex_;
 
 public:
-  void run();
+  void run(EventListener &listener);
   SelectTask(bool &running_);
   ~SelectTask();
 };
@@ -55,7 +56,8 @@ public:
   Selector(socket_t sockfd, int pool_size);
   ~Selector();
   bool is_terminal();
-  void bootstrap(const Task& task);
+  // void bootstrap(const Task& task);
+  void bootstrap(EventListener *listener);
 };
 
 }

@@ -1,6 +1,8 @@
 #include "kit/event/base_server.h"
+#include "kit/event/event_listener.h"
 #include "log.h"
 #include "kit/event/selector.h"
+#include <functional>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <assert.h>
@@ -18,6 +20,8 @@ BaseServer::~BaseServer() {
   close(sockfd_);
 }
 
+void IBaseHandle::handle() {}
+
 BaseServer* BaseServer::bind(char *ip, int port) {
   ip_ = ip;
   port_ = port;
@@ -32,13 +36,13 @@ BaseServer* BaseServer::bind(int port) {
 
 socket_t BaseServer::sock() { return sockfd_; }
 
-void BaseServer::wait_for_accept(server_accept_t accept) {
+void BaseServer::wait_for_accept(server_accept_t accept, EventListener *listener) {
   int ret = listen(sockfd_, 5);
   assert(ret != -1);
   LOGD("开始监听socket[%d]...", sockfd_);
   switch(accept) {
     case SERVER_ACCEPT_SELECT:
-      self_->select_accept();
+      self_->select_accept(listener);
       break;
     case SERVER_ACCEPT_POLL:
     case SERVER_ACCEPT_EPOLL:
@@ -46,10 +50,8 @@ void BaseServer::wait_for_accept(server_accept_t accept) {
   }
 }
 
-void task(){}
-
-void BaseServer::select_accept() {
+void BaseServer::select_accept(EventListener *listener) {
   Selector selector(sockfd_, 1);
-  selector.bootstrap(std::bind(task));
+  selector.bootstrap(listener);
   while(!selector.is_terminal());
 }
