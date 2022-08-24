@@ -17,6 +17,7 @@ include_directories(inc ${MY_LIB_DIR}/inc)
 aux_source_directory(${MY_LIB_DIR}/src CXX_LIB_SRC)
 aux_source_directory(${MY_LIB_DIR}/src/kit CXX_KIT_SRC)
 aux_source_directory(${MY_LIB_DIR}/src/kit/event CXX_EVENT_SRC)
+aux_source_directory(${MY_LIB_DIR}/src/kit/http CXX_HTTP_SRC)
 aux_source_directory(src CXX_SRC)
 
 aux_source_directory(${TEST_SOURCE_BASE_DIR}/simple_select CXX_SIMPLE_SELECT_SRC)
@@ -44,4 +45,5 @@ add_executable(base_server
   ${CXX_LIB_SRC}
   ${CXX_KIT_SRC}
   ${CXX_EVENT_SRC}
+  ${CXX_HTTP_SRC}
   ${CXX_BASE_SERVER_SRC})

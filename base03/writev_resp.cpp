@@ -99,9 +99,9 @@ int main(int argc, char **argv){
       ret = writev(connfd, iv, 2);
       std::cout << "文件已发送" << std::endl;
     }
-    close(connfd);
-    delete[] file_buf;
+    if(connfd > 0) close(connfd);
+    if(file_buf) delete[] file_buf;
   }
-  close(sock);
+  if(sock > 0) close(sock);
   return 0;
 }

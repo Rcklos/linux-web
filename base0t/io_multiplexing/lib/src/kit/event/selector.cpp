@@ -75,7 +75,7 @@ void Selector::dispatch(socket_t client) {
 SelectTask::SelectTask(bool &running): running_(running) {}
 SelectTask::~SelectTask(){}
 
-void SelectTask::run(EventListener &listener) {
+void SelectTask::run(EventListener *listener) {
   pthread_t tid = pthread_self();
   fd_set sock_set;
   struct timeval tv;
@@ -95,7 +95,7 @@ void SelectTask::run(EventListener &listener) {
       sock = mq_.front();
       mq_.pop();
       q.push(sock);
-      LOGD("thread[%ld]: 将connfd[%d]加入了监听队列", tid, sock);
+      // LOGD("thread[%ld]: 将connfd[%d]加入了监听队列", tid, sock);
     }
     pthread_mutex_unlock(&mq_mutex_);
 
@@ -104,7 +104,7 @@ void SelectTask::run(EventListener &listener) {
       sock = q.front();
       q.pop();
       if(max < sock) max = sock;
-      LOGD("thread[%ld]: 将connfd[%d]加入了select队列", tid, sock);
+      // LOGD("thread[%ld]: 将connfd[%d]加入了select队列", tid, sock);
       FD_SET(sock, &sock_set);
       q.push(sock);
     }
@@ -119,6 +119,7 @@ void SelectTask::run(EventListener &listener) {
       q.pop();
       if(FD_ISSET(sock, &sock_set)) {
         event_t *event = new event_t();
+        event->sockfd = sock;
         event->buff = new char[1024];
         char *buff_ = event->buff;
         LOGD("socket[%d]有事，正在处理...", sock);
@@ -131,61 +132,12 @@ void SelectTask::run(EventListener &listener) {
         LOGD("socket[%d]发来消息(ret: %d): %s", ret, sock, buff_);
         event->buff_size = ret;
         event->type = EVENT_TYPE_RECV_SOCK;
-        listener.emit(event);
+        listener->emit(event);
         // bzero(buff_, 1024);
         FD_CLR(sock, &sock_set);
       }
       // 入队下次用
       q.push(sock);
-    }
-  }
-  LOGD("thread[%ld]: 正在退出线程", tid);
-}
-
-void select_task(select_task_buff_t *buff) {
-  pthread_t tid = pthread_self();
-  LOGD("正在启动select线程thread[%ld]", tid);
-  fd_set sock_set;
-  struct timeval tv;
-  int size = 0, max = 0, ret = 0;
-  socket_t sock;
-  std::queue<socket_t> q;
-  while(*buff->running_) {
-    FD_ZERO(&sock_set);
-    // 先读取mq长度
-    pthread_mutex_lock(&buff->mq_mutex_);
-    size = buff->mq.size();
-    LOGD("thread[%ld]: 开始读取mq, size = %d", tid, size);
-    for(int i = 0; i < size; i++) {
-      // select
-      sock = buff->mq.front();
-      if(max < sock) max = sock;
-      buff->mq.pop();
-      q.push(sock);
-      LOGD("thread[%ld]: 将connfd[%d]加入了监听队列", tid, sock);
-      FD_SET(sock, &sock_set);
-    }
-    pthread_mutex_unlock(&buff->mq_mutex_);
-
-    tv.tv_sec = 3;
-    tv.tv_usec = 0;
-    ret = select(max + 1, &sock_set, NULL, NULL, &tv);
-    assert(ret != -1);
-    size = q.size();
-    for(int i = 0; i < size; i++) {
-      sock = q.front();
-      q.pop();
-      if(FD_ISSET(sock, &sock_set)) {
-        LOGD("socket[%d]有事，正在处理...", sock);
-        ret = recv(sock, buff->buff__, 1024, 0);
-        if(ret <= 0) {
-          LOGD("scoket[%d]他说没事了，我让他滚 ----> ret = %d, %s", sock, ret, strerror(errno));
-          close(sock);
-          continue;
-        }
-        LOGD("socket[%d]发来消息(ret: %d): %s", ret, sock, buff->buff__);
-        FD_CLR(sock, &sock_set);
-      }
     }
   }
   LOGD("thread[%ld]: 正在退出线程", tid);
@@ -199,6 +151,6 @@ void Selector::bootstrap(EventListener *listener) {
   for(int i = 0; i < pool_size_; i++) {
     // select_task_buff_[i].running_ = &running_;
     // register_task(std::bind(select_task, select_task_buff_ + i));
-    register_task(std::bind(&SelectTask::run, select_tasks[i], *listener));
+    register_task(std::bind(&SelectTask::run, select_tasks[i], listener));
   }
 }

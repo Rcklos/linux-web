@@ -77,6 +77,7 @@ void* ThreadPool::th_create(void *args) {
       break;
     }
     func();
+    LOGD("thread[%ld] 执行完毕");
   }
   LOGD("thread: bye ---> stop: %d", pool->stop_);
   return 0;

@@ -33,7 +33,7 @@ public:
   pthread_mutex_t mq_mutex_;
 
 public:
-  void run(EventListener &listener);
+  void run(EventListener *listener);
   SelectTask(bool &running_);
   ~SelectTask();
 };
