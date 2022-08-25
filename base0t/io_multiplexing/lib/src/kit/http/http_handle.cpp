@@ -1,6 +1,7 @@
 #include "kit/http/http_handle.h"
 #include "kit/http/http_request.h"
 #include "kit/http/http_response.h"
+#include "kit/http/http_router.h"
 #include "kit/thread_pool.h"
 #include "log.h"
 #include <cassert>
@@ -16,6 +17,7 @@ using namespace std;
 
 HttpHandle::HttpHandle() {
   tpool_ = new ThreadPool(5);
+  router = HttpRouter::createRoot(NULL);
 }
 
 HttpHandle::~HttpHandle() {
@@ -67,11 +69,23 @@ void HttpHandle::handle_(socket_t sockfd, char *buff_, int size) {
   // LOGD("send: ret=%d, errno: %s", ret, strerror(errno));
 
   HttpResponse response(sockfd);
-  int ret = response.write("你好啊\n");
-  if(ret < 0)
-    LOGD("hanlde --> response failed: ret = %d", ret);
+  // int ret = response.write("你好啊\n");
+  // if(ret < 0)
+  //   LOGD("hanlde --> response failed: ret = %d", ret);
+
+  if(!router->dispatch(request, &response)) {
+    LOGD("hanlde --> url[%s] not match router!", request->request_line.url.c_str());
+    if(response.write(SC_NOT_FOUND) < 0) {
+      LOGD("response write failed!");
+    }
+    response.end();
+  }
 
   delete buff_;
+}
+
+bool HttpHandle::route(string pattern, const RouteTask &task) {
+  return router->route(pattern, task);
 }
 
 void HttpHandle::handle(socket_t sockfd, char *buff_, int size) {

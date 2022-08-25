@@ -13,10 +13,10 @@ typedef enum{
 } http_response_version_t;
 
 typedef enum {
-  OK = 200,
-  BAD_REQUEST = 400,
-  NOT_FOUND = 404,
-  INTE_SERVER_ERROR = 500
+  SC_OK = 200,
+  SC_BAD_REQUEST = 400,
+  SC_NOT_FOUND = 404,
+  SC_INTE_SERVER_ERROR = 500
 } http_response_status_t;
 
 typedef struct http_response_line_t {
@@ -25,7 +25,7 @@ typedef struct http_response_line_t {
 
   http_response_line_t():
     version(RESP_HTTP_1_1),
-    status(OK) {}
+    status(SC_OK) {}
 } http_response_line_t;
 
 static int response_line_to_text(http_response_version_t &response_line, char *buff, int offset);
@@ -42,7 +42,7 @@ public:
   void set_header(std::string key, std::string value);
   void set_header(const char *key, const char *value);
   void set_header(char *key, char *value);
-  int write(http_response_status_t &status);
+  int write(http_response_status_t status);
   int write(const char *text);
   int write(char *text);
   int write(std::string text);

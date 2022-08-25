@@ -129,7 +129,7 @@ void SelectTask::run(EventListener *listener) {
           close(sock);
           continue;
         }
-        LOGD("socket[%d]发来消息(ret: %d): %s", ret, sock, buff_);
+        // LOGD("socket[%d]发来消息(ret: %d): %s", ret, sock, buff_);
         event->buff_size = ret;
         event->type = EVENT_TYPE_RECV_SOCK;
         listener->emit(event);

@@ -79,7 +79,7 @@ int HttpResponse::write(char *text) {
 
 int HttpResponse::write(const char * text) { return write(const_cast<char *>(text)); }
 
-int HttpResponse::write(http_response_status_t &status) {
+int HttpResponse::write(http_response_status_t status) {
   response_line.status = status;
   return write((char *)NULL);
 }
@@ -89,8 +89,7 @@ bool HttpResponse::send_(const char *buff, size_t size) {
   int ret = send(sockfd, buff, size, 0);
   if(ret == -1) {
     LOGD("response failed: %s", strerror(errno));
-    if(sockfd > 0) close(sockfd);
-    sockfd = -1;
+    end();
     return false;
   }
   return true;
@@ -103,4 +102,9 @@ inline bool HttpResponse::send_(stringstream &ss) {
 
 inline bool HttpResponse::send_(string &s) {
   return send_(s.c_str(), s.length());
+}
+
+void HttpResponse::end() {
+  if(sockfd > 0) close(sockfd);
+  sockfd = -1;
 }
