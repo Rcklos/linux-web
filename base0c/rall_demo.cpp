@@ -29,7 +29,7 @@ void del1(A *a) {
 int main() {
   // A *a = new A();
   // A *b1 = new B();
-  B *b2 = new B();
+  A *b2 = new B();
   // delete a;
   // delete b1;
   // delete b2;

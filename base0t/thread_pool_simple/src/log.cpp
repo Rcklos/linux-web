@@ -1,4 +1,9 @@
 #include "log/log.h"
+#include <cstdarg>
+#include <cstdio>
+#include <sstream>
+
+using namespace std;
 
 char *log_format_time() {
   struct timespec ts;

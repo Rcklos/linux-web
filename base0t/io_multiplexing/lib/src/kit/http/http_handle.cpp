@@ -1,5 +1,6 @@
 #include "kit/http/http_handle.h"
 #include "kit/http/http_request.h"
+#include "kit/http/http_response.h"
 #include "kit/thread_pool.h"
 #include "log.h"
 #include <cassert>
@@ -61,10 +62,15 @@ void HttpHandle::handle_(socket_t sockfd, char *buff_, int size) {
     if(sockfd > 0) close(sockfd);
     return;
   }
-  string str = "HTTP/1.1 200 OK\r\nContent-Length: 4\r\n\r\ntest\r\n\r\n";
-  int ret = send(sockfd, str.c_str(), str.length(), 0);
-  LOGD("send: ret=%d, errno: %s", ret, strerror(errno));
-  // close(sockfd);
+  // string str = "HTTP/1.1 200 OK\r\nContent-Length: 4\r\n\r\ntest\r\n\r\n";
+  // int ret = send(sockfd, str.c_str(), str.length(), 0);
+  // LOGD("send: ret=%d, errno: %s", ret, strerror(errno));
+
+  HttpResponse response(sockfd);
+  int ret = response.write("你好啊\n");
+  if(ret < 0)
+    LOGD("hanlde --> response failed: ret = %d", ret);
+
   delete buff_;
 }
 

@@ -111,6 +111,6 @@ int main() {
   }
   while(thread_pool.size());
   thread_pool.terminal();
-  LOGI(bye);
+  LOGI("bye");
   return 0;
 }

@@ -43,7 +43,7 @@ bool parse_request_line(stringstream &ss, http_request_line_t &request_line) {
 }
 
 bool parse_request_header(stringstream &ss, 
-    std::map<string, string> &header) {
+  std::map<string, string> &header) {
 
   string ans, key, value;
   string::size_type pos;
